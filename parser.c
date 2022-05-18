@@ -1,32 +1,77 @@
 #include "shell.h"
 /**
- * _parser_cmd - Parses a simple command from prompt.
- * @cmd_line: command line to be parsed from prompt.
- * @myself: my own name as shell.
+ * is_path_form - chekc if the given fikenname is a path
+ * @data: the data strucct pointer
  *
- * Return: NULL or pointer to command node
+ * Return: (Success)
+ * ------- (Fail) otherwise
  */
-command_t *_parser_cmd(char *myself, char *cmd_line)
+int is_path_form(sh_t *data)
 {
-	size_t i = 0;
-	char *cmd_str = NULL;
-	/* const char *cmd_sep = ";|"; */
-	const char *arg_sep = " \n";
-	command_t *cmd_node = NULL;
-
-	cmd_str = strtok(cmd_line, arg_sep); /* get the first token */
-	if (cmd_str)
+	if (_strchr(data->args[0], '/') != 0)
 	{
-		cmd_node = new_cmd_node(myself);
-		add_tok_to_cmd(myself, cmd_node, i, cmd_str);
-		/* cmd_node->next = NULL; */
-		while (cmd_str != NULL)
-		{ /* walk through other tokens */
-			cmd_str == NULL ? i : i++;
-			cmd_str = strtok(NULL, arg_sep);
-			if (cmd_str)
-				add_tok_to_cmd(myself, cmd_node, i, cmd_str);
-		}
+		data->cmd = _strdup(data->args[0]);
+		return (SUCCESS);
 	}
-	return (cmd_node);
+	return (FAIL);
+}
+#define DELIMITER ":"
+/**
+ * is_short_form - chekc if the given fikenname is short form
+ * @data: the data strucct pointer
+ *
+ * Return: (Success)
+ * ------- (Fail) otherwise
+ */
+void is_short_form(sh_t *data)
+{
+	char *path, *token, *_path;
+	struct stat st;
+	int exist_flag = 0;
+
+	path = _getenv("PATH");
+	_path = _strdup(path);
+	token = strtok(_path, DELIMITER);
+	while (token)
+	{
+		data->cmd = _strcat(token, data->args[0]);
+		if (stat(data->cmd, &st) == 0)
+		{
+			exist_flag += 1;
+			break;
+		}
+		free(data->cmd);
+		token = strtok(NULL, DELIMITER);
+	}
+	if (exist_flag == 0)
+	{
+		data->cmd = _strdup(data->args[0]);
+	}
+	free(_path);
+}
+#undef DELIMITER
+/**
+ * is_builtin - checks if the command is builtin
+ * @data: a pointer to the data structure
+ *
+ * Return: (Success) 0 is returned
+ * ------- (Fail) negative number will returned
+ */
+int is_builtin(sh_t *data)
+{
+	blt_t blt[] = {
+		{"exit", abort_prg},
+		{"cd", change_dir},
+		{"help", display_help},
+		{NULL, NULL}
+	};
+	int i = 0;
+
+	while ((blt + i)->cmd)
+	{
+		if (_strcmp(data->args[0], (blt + i)->cmd) == 0)
+			return (SUCCESS);
+		i++;
+	}
+	return (NEUTRAL);
 }

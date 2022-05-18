@@ -1,5 +1,14 @@
-exit: exit [n]
-    Exit the shell.
-    
-    Exits the shell with a status of N.  If N is omitted, the exit status
-    is that of the last command executed.
+#include "shell.h"
+
+/**
+ * _exit_func - Function to exit successfully
+ *
+ * @environ: Environment variables.
+ */
+
+void _exit_func(char **environ)
+{
+	(void)environ;
+	/* free_listint(*history); */
+	exit(98);
+}

@@ -1,103 +1,81 @@
-#ifndef SHELL_H
-#define SHELL_H
+#ifndef _SHELL_H_
+#define _SHELL_H_
 
 #include <stdio.h>
-#include <wchar.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
-#include <sys/types.h>
+#include <limits.h>
+#include <signal.h>
+
 
 /**
- * struct error_msg - An structure for each error message
- *
- * @ecode: error code
- * @msg: pointer to error message
- * @size: error message length.
+ * struct variables - variables
+ * @av: command line arguments
+ * @buffer: buffer of command
+ * @env: environment variables
+ * @count: count of commands entered
+ * @argv: arguments at opening of shell
+ * @status: exit status
+ * @commands: double pointer to commands
  */
-typedef struct error_msg
+typedef struct variables
 {
-	int ecode;
-	char *msg;
-	int  size;
-} error_msg_t;
+	char **av;
+	char *buffer;
+	char **env;
+	size_t count;
+	char **argv;
+	int status;
+	char **commands;
+} vars_t;
 
 /**
- * struct built_s - Builtings commands
- * @command: command name.
- * @f: function to call.
- *
- * Description: Longer description
+ * struct builtins - struct for the builtin functions
+ * @name: name of builtin command
+ * @f: function for corresponding builtin
  */
-typedef struct built_s
+typedef struct builtins
 {
-	char *command;
-	void (*f)(char **);
-} built_t;
+	char *name;
+	void (*f)(vars_t *);
+} builtins_t;
 
-/**
- * struct history - An structure for each command readed
- *
- * @id_h: error code
- * @comms: Commands
- * @prev: Previous element
- * @next: Next element
- */
+char **make_env(char **env);
+void free_env(char **env);
 
-typedef struct history
-{
-	unsigned int id_h;
-	char *comms;
-	struct history *prev;
-	struct history *next;
-} history_t;
+ssize_t _puts(char *str);
+char *_strdup(char *strtodup);
+int _strcmpr(char *strcmp1, char *strcmp2);
+char *_strcat(char *strc1, char *strc2);
+unsigned int _strlen(char *str);
 
-/**
- * struct command_s - An structure for each command
- *
- * @command: command with arguments.
- * @next: pointer to next command.
- */
-typedef struct command_s
-{
-	char **command;
-	struct command_s *next;
-} command_t;
+char **tokenize(char *buffer, char *delimiter);
+char **_realloc(char **ptr, size_t *size);
+char *new_strtok(char *str, const char *delim);
 
-/* Shell functions */
-command_t **_prompt(char *, char *);
-int _fork(char *, command_t *, char *, char **);
-int _stat(char *, char *);
-int _exec(char *, char **, char **);
+void (*check_for_builtins(vars_t *vars))(vars_t *vars);
+void new_exit(vars_t *vars);
+void _env(vars_t *vars);
+void new_setenv(vars_t *vars);
+void new_unsetenv(vars_t *vars);
 
-/* Utilities */
-char *read_line(void);
+void add_key(vars_t *vars);
+char **find_key(char **env, char *key);
+char *add_value(char *key, char *value);
+int _atoi(char *str);
 
-size_t _strlen(char *str);
-command_t *_parser_cmd(char *, char *);
-size_t _parser_arg(char *, char **, size_t *);
-void print_char_pointer_arr(char **, size_t);
-int add_nodeint(history_t **head, char *str);
-char *_strdup(char *str);
-void free_listint(history_t *head);
-void print_listint(const history_t *);
-char *find_path(char **);
-char *_strstr(char *haystack, char *needle);
-void print_env(char **);
-char *_which(char *p_rec, char *first_arg);
-char *string_nconcat(char *s1, char *s2, unsigned int n);
-int _strcmp(char *s1, char *s2);
-void _exit_func(char **);
-int verif_built_comm(char *str, char **env);
+void check_for_path(vars_t *vars);
+int path_execute(char *command, vars_t *vars);
+char *find_path(char **env);
+int execute_cwd(vars_t *vars);
+int check_for_dir(char *str);
 
-/* Error handler */
-void error_handler(char *, int);
-void error_handler_set_default(int, char *);
+void print_error(vars_t *vars, char *msg);
+void _puts2(char *str);
+char *_uitoa(unsigned int count);
 
-/* Command Utilities */
-command_t *new_cmd_node(char *);
-void add_tok_to_cmd(char *, command_t *, size_t, char *);
-
-#endif
+#endif /* _SHELL_H_ */

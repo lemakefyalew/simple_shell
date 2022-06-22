@@ -29,7 +29,7 @@ char *_strdup(char *strtodup)
 {
 	char *copy;
 
-	int len, i;
+		int len, i;
 
 	if (strtodup == 0)
 		return (NULL);

@@ -11,7 +11,6 @@
 #include <limits.h>
 #include <signal.h>
 
-
 /**
  * struct variables - variables
  * @av: command line arguments
@@ -20,7 +19,7 @@
  * @count: count of commands entered
  * @argv: arguments at opening of shell
  * @status: exit status
- * @commands: double pointer to commands
+ * @commands: commands to execute
  */
 typedef struct variables
 {
